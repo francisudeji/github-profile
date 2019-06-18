@@ -1,17 +1,19 @@
 import React from 'react'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
-
+import { AppProvider } from './context'
 import Home from './pages/home'
 import Profile from './pages/profile'
 
 function App() {
   return (
-    <Router>
-      <Switch>
-        <Route exact path='/' component={Home} />
-        <Route exact path='/profile' component={Profile} />
-      </Switch>
-    </Router>
+    <AppProvider>
+      <Router>
+        <Switch>
+          <Route exact path='/' component={Home} />
+          <Route path='/:username' component={Profile} />
+        </Switch>
+      </Router>
+    </AppProvider>
   )
 }
 
