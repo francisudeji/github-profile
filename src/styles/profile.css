@@ -1,0 +1,13 @@
+.nav-item .active-tab {
+  border: 0 !important;
+  border-bottom: 2px solid #e36209 !important;
+  font-weight: 500;
+}
+
+.nav-item .nav-link {
+}
+
+.nav-item .nav-link:hover:not(.active-tab) {
+  border: 0 !important;
+  border-bottom: 2px solid #ccc !important;
+}
