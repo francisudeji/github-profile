@@ -19,16 +19,30 @@ export async function authenticateWithGithub() {
 }
 
 export async function getUserProfile(username) {
-  const baseURL = 'https://api.github.com/users'
+  const baseURL = `https://api.github.com/users/${username}`
   const token = localStorage.getItem('github-token')
   const headers = { Authorization: `bearer ${token}` }
 
-  axios
-    .get(`${baseURL}/${username}`, { headers })
-    .then(res => {
-      console.log(res.data)
-    })
-    .catch(({ response }) => {
-      console.log(response)
-    })
+  const basicInfoPromise = axios.get(`${baseURL}`)
+  const allReposPromise = axios.get(`${baseURL}/repos`)
+  const starredReposPromise = axios.get(`${baseURL}/starred`)
+
+  return new Promise((resolve, reject) => {
+    axios
+      .all([basicInfoPromise, allReposPromise, starredReposPromise], {
+        headers
+      })
+      .then(
+        axios.spread((basicInfo, allRepos, starredRepos) => {
+          resolve({
+            basicInfo: basicInfo.data,
+            allRepos: allRepos.data,
+            starredRepos: starredRepos.data
+          })
+        })
+      )
+      .catch(err => {
+        reject(err)
+      })
+  })
 }
