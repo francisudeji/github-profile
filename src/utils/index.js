@@ -24,7 +24,9 @@ export async function getUserProfile(username) {
   const headers = { Authorization: `bearer ${token}` }
 
   const basicInfoPromise = axios.get(`${baseURL}`)
-  const allReposPromise = axios.get(`${baseURL}/repos`)
+  const allReposPromise = axios.get(
+    `${baseURL}/repos?direction=desc&sort=created&limit=50`
+  )
   const starredReposPromise = axios.get(`${baseURL}/starred`)
 
   return new Promise((resolve, reject) => {
