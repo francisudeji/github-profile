@@ -1,0 +1,13 @@
+@media (max-width: 437px) {
+  .nav {
+    flex-wrap: nowrap !important;
+    overflow-x: scroll;
+    overflow-y: hidden;
+  }
+}
+
+@media (max-width: 992px) {
+  .nav .nav-item .badge {
+    display: none;
+  }
+}
