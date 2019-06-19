@@ -4,7 +4,8 @@
   font-weight: 500;
 }
 
-.nav-item .nav-link {
+.small-text {
+  padding-right: 0.7rem;
 }
 
 .nav-item .nav-link:hover:not(.active-tab) {
