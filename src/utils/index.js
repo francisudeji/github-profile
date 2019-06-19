@@ -7,7 +7,10 @@ export async function authenticateWithGithub() {
       site_id: 'bb636699-af55-440f-84e8-0076e8f1aab5'
     })
     authenticator.authenticate(
-      { provider: 'github', scope: 'public_repo,read:org,read:user' },
+      {
+        provider: 'github',
+        scope: 'public_repo,read:org,read:user,user:follow'
+      },
       (err, data) => {
         if (err) {
           reject(err)

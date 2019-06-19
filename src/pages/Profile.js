@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 import { getUserProfile } from '../utils'
 import {
   FaUsers,
@@ -6,7 +7,9 @@ import {
   FaEnvelope,
   FaLink,
   FaStar,
-  FaMarker
+  FaMarker,
+  FaBell,
+  FaPlus
 } from 'react-icons/fa'
 import distanceInWords from 'date-fns/distance_in_words'
 import isThisYear from 'date-fns/is_this_year'
@@ -35,8 +38,11 @@ function Profile({ match, location }) {
   ] = useState({})
   const [hasAllData, setHasAllData] = useState(false)
   const [err, setErr] = useState(null)
+  const [token, setToken] = useState(null)
 
   useEffect(() => {
+    const token = localStorage.getItem('github-token')
+    setToken(token)
     loadProfile()
   }, [])
 
@@ -54,27 +60,121 @@ function Profile({ match, location }) {
         setHasAllData(false)
       })
   }
+  function followUser(username) {
+    const headers = {
+      Authorization: `bearer ${token}`,
+      'Content-Length': 0
+    }
+    axios
+      .put(`https://api.github.com/user/following/${username}`)
+      .then(res => {
+        console.log(res.data)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
 
   return (
     <div className='profile'>
-      <div className='container mt-5'>
+      <nav
+        className='navbar navbar-expand-lg navbar-dark '
+        style={{ background: '#000' }}
+      >
+        <a className='navbar-brand logo' href='#'>
+          <img src='/icon.png' height='40' width='40' />
+        </a>
+
+        <button
+          className='navbar-toggler toggle-btn'
+          type='button'
+          data-toggle='collapse'
+          data-target='#navbarSupportedContent'
+          aria-controls='navbarSupportedContent'
+          aria-expanded='false'
+          aria-label='Toggle navigation'
+        >
+          <span className='navbar-toggler-icon' />
+        </button>
+
+        <div className='collapse navbar-collapse' id='navbarSupportedContent'>
+          <form className='form-inline my-2 my-lg-0'>
+            <input
+              style={{ border: 0, background: '#212529', minWidth: '300px' }}
+              className='form-control form-control-sm mr-sm-2 text-white'
+              type='search'
+              placeholder='Search or jump to'
+              aria-label='Search'
+            />
+          </form>
+          <ul className='navbar-nav mr-auto'>
+            <li className='nav-item'>
+              <a
+                className='nav-link white-link'
+                href='https://github.com/pulls'
+              >
+                Pull Requests
+              </a>
+            </li>
+            <li className='nav-item'>
+              <a
+                className='nav-link white-link'
+                href='https://github.com/issues'
+              >
+                Issues
+              </a>
+            </li>
+            <li className='nav-item'>
+              <a
+                className='nav-link white-link'
+                href='https://github.com/marketplace'
+              >
+                Marketplace
+              </a>
+            </li>
+            <li className='nav-item'>
+              <a
+                className='nav-link white-link'
+                href='https://github.com/explore'
+              >
+                Explore
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div className='ml-auto'>
+          <span className='pr-2'>
+            <FaBell style={{ color: '#fff' }} />{' '}
+          </span>{' '}
+          <span className='pr-2'>
+            <FaPlus style={{ color: '#fff' }} />{' '}
+          </span>
+          <button className='btn btn-dark' onClick={e => null}>
+            Logout
+          </button>
+        </div>
+      </nav>
+      <div className='container mt-4'>
         {hasAllData ? (
           <div className='row'>
             <div className='col-xs-12 col-sm-12 col-md-4 col-lg-4'>
-              {console.log(followers, following)}
-              <div className='img-container'>
-                <img
-                  src={basicInfo.avatar_url}
-                  style={{ width: '100%', maxWidth: '270px' }}
-                  width='270'
-                  alt={basicInfo.login}
-                />
+              {/* {console.log(followers, following)} */}
+              <div className='top-wrapper'>
+                <div className='img-container'>
+                  <img
+                    src={basicInfo.avatar_url}
+                    width='270'
+                    alt={basicInfo.login}
+                  />
+                </div>
+                <div className='bottom-wrapper mb-2'>
+                  <h3 className='mt-3'>{basicInfo.name}</h3>
+                  <p className='lead'>{basicInfo.login}</p>
+                </div>
               </div>
-              <h3 className='mt-3'>{basicInfo.name}</h3>
-              <p className='lead'>{basicInfo.login}</p>
-              <button className='btn btn-secondary btn-block mb-3'>
+              {/* <button className='btn btn-secondary btn-block mb-3'>
                 Follow
-              </button>
+              </button> */}
               <p>{basicInfo.bio}</p>
               {basicInfo.company !== null && (
                 <p>
@@ -312,6 +412,7 @@ function Profile({ match, location }) {
                         style={{ border: 0 }}
                       >
                         <button
+                          onClick={e => followUser(follower.login)}
                           style={{
                             display: 'flex',
                             justifyContent: 'space-between',
@@ -393,7 +494,7 @@ function Profile({ match, location }) {
                           }}
                           className='btn btn-light btn-sm'
                         >
-                          Follow
+                          Unfollow
                         </button>
                       </div>
                     </div>
