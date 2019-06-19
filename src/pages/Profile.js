@@ -38,11 +38,11 @@ function Profile({ match, location }) {
   ] = useState({})
   const [hasAllData, setHasAllData] = useState(false)
   const [err, setErr] = useState(null)
-  const [token, setToken] = useState(null)
+  // const [token, setToken] = useState(null)
 
   useEffect(() => {
-    const token = localStorage.getItem('github-token')
-    setToken(token)
+    // const token = localStorage.getItem('github-token')
+    // setToken(token)
     loadProfile()
   }, [])
 
@@ -61,10 +61,10 @@ function Profile({ match, location }) {
       })
   }
   function followUser(username) {
-    const headers = {
-      Authorization: `bearer ${token}`,
-      'Content-Length': 0
-    }
+    // const headers = {
+    //   Authorization: `bearer ${token}`,
+    //   'Content-Length': 0
+    // }
     axios
       .put(`https://api.github.com/user/following/${username}`)
       .then(res => {
@@ -81,8 +81,8 @@ function Profile({ match, location }) {
         className='navbar navbar-expand-lg navbar-dark '
         style={{ background: '#000' }}
       >
-        <a className='navbar-brand logo' href='#'>
-          <img src='/icon.png' height='40' width='40' />
+        <a className='navbar-brand logo' href={`/${username}`}>
+          <img alt='logo' src='/icon.png' height='40' width='40' />
         </a>
 
         <button
@@ -142,16 +142,13 @@ function Profile({ match, location }) {
             </li>
           </ul>
         </div>
-        <div className='ml-auto'>
+        <div className='ml-auto utils'>
           <span className='pr-2'>
             <FaBell style={{ color: '#fff' }} />{' '}
           </span>{' '}
           <span className='pr-2'>
             <FaPlus style={{ color: '#fff' }} />{' '}
           </span>
-          <button className='btn btn-dark' onClick={e => null}>
-            Logout
-          </button>
         </div>
       </nav>
       <div className='container mt-4'>
@@ -443,7 +440,6 @@ function Profile({ match, location }) {
                         borderRight: 0
                       }}
                     >
-                      {console.log({ _following })}
                       <div
                         className='card-header bg-white'
                         style={{ border: 0 }}

@@ -10,6 +10,7 @@ function Home({ history }) {
   const [token, setToken] = useState(null)
   const [username, setUsername] = useState('')
   const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem('github-token')
@@ -37,15 +38,18 @@ function Home({ history }) {
     const headers = { Authorization: `bearer ${token}` }
     setError(null)
     setUsername('')
+    setLoading(true)
 
     axios
       .get(`${baseURL}/${username}`, { headers })
       .then(res => {
         history.push(`/${username}/repositories`)
+        setLoading(false)
       })
       .catch(({ response }) => {
         setUsername('')
         setError(response.statusText)
+        setLoading(false)
       })
   }
 
@@ -61,6 +65,7 @@ function Home({ history }) {
           <div className='form-group'>
             <label htmlFor='username'>Username</label>
             <input
+              required
               type='search'
               className='form-control'
               id='username'
@@ -70,11 +75,24 @@ function Home({ history }) {
               autoFocus
             />
           </div>
-          <input
-            type='submit'
-            value='Search'
+          <button
             className='btn btn-success btn-block'
-          />
+            type='submit'
+            disabled={loading ? 'disabled' : ''}
+          >
+            {loading ? (
+              <>
+                <span
+                  class='spinner-grow spinner-grow-sm'
+                  role='status'
+                  aria-hidden='true'
+                />
+                Searching
+              </>
+            ) : (
+              <span>Search</span>
+            )}
+          </button>
         </form>
       </HomeWrapper>
     )
