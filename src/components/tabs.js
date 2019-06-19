@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import '../styles/tab.css'
 
 function Tabs({ repos, followers, following, stars, username, pathname }) {
   const routes = [
@@ -12,12 +13,18 @@ function Tabs({ repos, followers, following, stars, username, pathname }) {
   return (
     <ul className='nav nav-tabs mb-3'>
       {routes.map(route => (
-        <li className='nav-item' key={route.text}>
+        <li
+          className='nav-item pb-1'
+          key={route.text}
+          style={{
+            display: 'flex'
+          }}
+        >
           <Link
             className={
               route.path === pathname
-                ? 'nav-link text-dark active-tab'
-                : 'nav-link text-dark'
+                ? 'nav-link text-dark pb-3 active-tab'
+                : 'nav-link text-dark pb-3'
             }
             to={route.path}
           >
