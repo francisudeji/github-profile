@@ -41,7 +41,7 @@ function Home({ history }) {
     axios
       .get(`${baseURL}/${username}`, { headers })
       .then(res => {
-        history.push(`/${username}`)
+        history.push(`/${username}/repositories`)
       })
       .catch(({ response }) => {
         setUsername('')
