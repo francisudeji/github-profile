@@ -1,39 +1,75 @@
 import React, { useEffect, useState } from 'react'
 import { getUserProfile } from '../utils'
-import { Link } from 'react-router-dom'
-import { FaUsers, FaMapMarker, FaEnvelope, FaLink } from 'react-icons/fa'
+import {
+  FaUsers,
+  FaMapMarker,
+  FaEnvelope,
+  FaLink,
+  FaStar
+} from 'react-icons/fa'
 import distanceInWords from 'date-fns/distance_in_words'
+import isThisYear from 'date-fns/is_this_year'
 import '../styles/profile.css'
 import Tabs from '../components/tabs'
 import { format } from 'date-fns'
+
+function TabContents({ username, pathname, children }) {
+  if (pathname.endsWith(username)) {
+    return <div>{children[0]}</div>
+  }
+
+  return children.map(
+    child =>
+      child.props.className === pathname.split('/')[2] && (
+        <div key={child.props.className}>{child}</div>
+      )
+  )
+}
 
 function Profile({ match, location }) {
   let username = match.params.username
   const [{ basicInfo, allRepos, starredRepos }, setState] = useState({})
   const [hasAllData, setHasAllData] = useState(false)
-
-  console.log(location)
+  const [err, setErr] = useState(null)
 
   useEffect(() => {
+    loadProfile()
+  }, [])
+
+  function loadProfile() {
+    setErr(null)
+    setHasAllData(false)
     getUserProfile(username)
       .then(data => {
         setState({ ...data })
         setHasAllData(true)
       })
-      .catch(err => console.log(err))
-  }, [username, location])
+      .catch(err => {
+        console.log(err.message)
+        setErr(err.message)
+        setHasAllData(false)
+      })
+  }
 
   return (
     <div className='profile'>
-      <div className='container mt-5'>
+      <div
+        className='container mt-5'
+        style={{
+          display: 'flex',
+          minHeight: '100vh',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
         {hasAllData ? (
           <div className='row'>
-            <div className='col-xs-12 col-sm-12 col-md-8 col-lg-8'>
-              <pre className='pr-5'>{JSON.stringify(allRepos, null, 2)}</pre>
-              {/* <div className='img-container'>
+            <div className='col-xs-12 col-sm-12 col-md-4 col-lg-4'>
+              {console.log(starredRepos)}
+              <div className='img-container'>
                 <img
                   src={basicInfo.avatar_url}
-                  style={{ maxWidth: '270px', width: '100%' }}
+                  style={{ width: '100%', maxWidth: '270px' }}
                   width='270'
                   alt={basicInfo.login}
                 />
@@ -63,9 +99,9 @@ function Profile({ match, location }) {
                 <p>
                   <FaLink /> <a href={basicInfo.blog}>{basicInfo.blog}</a>
                 </p>
-              )} */}
+              )}
             </div>
-            <div className='col-xs-12 col-sm-12 col-md-4 col-lg-4'>
+            <div className='col-xs-12 col-sm-12 col-md-8 col-lg-8'>
               <Tabs
                 repos={allRepos.length}
                 followers={basicInfo.followers}
@@ -75,51 +111,178 @@ function Profile({ match, location }) {
                 pathname={location.pathname}
               />
 
-              {allRepos.map(repo => (
-                <div
-                  className='card card-body'
-                  key={repo.id}
-                  style={{
-                    borderLeft: 0,
-                    borderTop: 0,
-                    borderRight: 0
-                  }}
-                >
-                  <h3 style={{ fontSize: '1.2rem' }}>
-                    <a href={repo.html_url}>{repo.name}</a>
-                  </h3>
-                  <p className='d-inline-block text-gray mb-2 pr-4'>
-                    {repo.description}
-                  </p>
-                  <p>
-                    <small>
-                      {/* {console.log(
-                        String(
-                          distanceInWords(
-                            new Date().toISOString(),
-                            repo.updated_at
-                          )
-                        ).indexOf('months')
-                      )} */}
-                      {String(
-                        distanceInWords(
-                          new Date().toISOString(),
-                          repo.updated_at
-                        )
-                      ).indexOf('months') > 0
-                        ? `Updated on ${format(repo.updated_at, 'D MMM')}`
-                        : `Updated ${distanceInWords(
-                            new Date().toISOString(),
-                            repo.updated_at
-                          )} ago`}
-                    </small>
-                  </p>
+              <TabContents username={username} pathname={location.pathname}>
+                <div className='repositories'>
+                  {allRepos.map(repo => (
+                    <div
+                      className='card'
+                      key={repo.id}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        borderLeft: 0,
+                        borderTop: 0,
+                        borderRight: 0
+                      }}
+                    >
+                      <div className='card-body'>
+                        <h3 style={{ fontSize: '1.2rem' }}>
+                          <a href={repo.html_url}>{repo.name}</a>
+                        </h3>
+                        <p className='d-inline-block text-gray mb-2 pr-4'>
+                          {repo.description}
+                        </p>
+                        <p>
+                          <small className='small-text'>
+                            <FaStar style={{ marginBottom: '2px' }} />{' '}
+                            {repo.stargazers_count}
+                          </small>{' '}
+                          <small className='small-text'>
+                            {String(
+                              distanceInWords(
+                                new Date().toISOString(),
+                                repo.updated_at
+                              )
+                            ).indexOf('months') > 0
+                              ? !isThisYear(repo.updated_at)
+                                ? `Updated on ${format(
+                                    repo.updated_at,
+                                    'D MMM YYYY'
+                                  )}`
+                                : `Updated on ${format(
+                                    repo.updated_at,
+                                    'D MMM'
+                                  )}`
+                              : `Updated ${distanceInWords(
+                                  new Date().toISOString(),
+                                  repo.updated_at
+                                )} ago`}
+                          </small>
+                        </p>
+                      </div>
+                      <div
+                        className='card-footer bg-white'
+                        style={{ border: 0 }}
+                      >
+                        <button
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            color: '#24292e',
+                            backgroundColor: '#eff3f6'
+                          }}
+                          className='btn btn-light btn-sm'
+                        >
+                          <FaStar style={{ marginRight: '4px' }} /> Star
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+                <div className='stars'>
+                  {starredRepos.map(starredRepo => (
+                    <div
+                      className='card'
+                      key={starredRepo.id}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        borderLeft: 0,
+                        borderTop: 0,
+                        borderRight: 0
+                      }}
+                    >
+                      <div className='card-body'>
+                        <h3 style={{ fontSize: '1.2rem' }}>
+                          <a href={starredRepo.html_url}>
+                            <span style={{ fontWeight: 400 }}>
+                              {starredRepo.owner.login}
+                            </span>{' '}
+                            /{' '}
+                            <span style={{ fontWeight: 600 }}>
+                              {starredRepo.name}
+                            </span>
+                          </a>
+                        </h3>
+                        <p className='d-inline-block text-gray mb-2 pr-4'>
+                          {starredRepo.description}
+                        </p>
+                        <p>
+                          <small className='small-text'>
+                            <FaStar style={{ marginBottom: '2px' }} />{' '}
+                            {starredRepo.stargazers_count}
+                          </small>{' '}
+                          <small className='small-text'>
+                            {String(
+                              distanceInWords(
+                                new Date().toISOString(),
+                                starredRepo.updated_at
+                              )
+                            ).indexOf('months') > 0
+                              ? !isThisYear(starredRepo.updated_at)
+                                ? `Updated on ${format(
+                                    starredRepo.updated_at,
+                                    'D MMM YYYY'
+                                  )}`
+                                : `Updated on ${format(
+                                    starredRepo.updated_at,
+                                    'D MMM'
+                                  )}`
+                              : `Updated ${distanceInWords(
+                                  new Date().toISOString(),
+                                  starredRepo.updated_at
+                                )} ago`}
+                          </small>
+                        </p>
+                      </div>
+                      <div
+                        className='card-footer bg-white'
+                        style={{ border: 0 }}
+                      >
+                        <button
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            color: '#24292e',
+                            backgroundColor: '#eff3f6'
+                          }}
+                          className='btn btn-light btn-sm'
+                        >
+                          <FaStar style={{ marginRight: '4px' }} /> Unstar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className='followers'>followers</div>
+                <div className='following'>following</div>
+              </TabContents>
             </div>
           </div>
         ) : (
-          <p className='lead'>Loading...</p>
+          <div className='lead text-center'>
+            {err === null ? (
+              <>
+                <p className='lead'>Fetching details for {username}</p>
+                <div className='spinner-grow' role='status'>
+                  <span className='sr-only'>Loading...</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className='lead'>{err}</p>
+                <button onClick={loadProfile} className='btn btn-primary'>
+                  Try Again
+                </button>
+              </>
+            )}
+          </div>
         )}
       </div>
     </div>
