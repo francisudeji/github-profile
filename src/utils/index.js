@@ -9,7 +9,7 @@ export async function authenticateWithGithub() {
     authenticator.authenticate(
       {
         provider: 'github',
-        scope: 'public_repo,read:org,read:user,user:follow'
+        scope: 'repo,read:org,read:user,user:follow'
       },
       (err, data) => {
         if (err) {
@@ -24,7 +24,7 @@ export async function authenticateWithGithub() {
 export async function getUserProfile(username) {
   const baseURL = `https://api.github.com/users/${username}`
   const token = localStorage.getItem('github-token')
-  const headers = { Authorization: `bearer ${token}` }
+  const headers = { Authorization: `Bearer ${token}` }
 
   const basicInfoPromise = axios.get(`${baseURL}`)
   const allReposPromise = axios.get(
@@ -53,11 +53,11 @@ export async function getUserProfile(username) {
       .then(
         axios.spread(
           (basicInfo, allRepos, starredRepos, followers, following) => {
-            const promises1 = []
-            const promises2 = []
+            const promise1 = []
+            const promise2 = []
 
             followers.data.forEach(f =>
-              promises1.push(
+              promise1.push(
                 axios.get(`https://api.github.com/users/${f.login}`, {
                   headers
                 })
@@ -65,22 +65,24 @@ export async function getUserProfile(username) {
             )
 
             following.data.forEach(f =>
-              promises2.push(
+              promise2.push(
                 axios.get(`https://api.github.com/users/${f.login}`, {
                   headers
                 })
               )
             )
 
-            axios.all(promises1).then(
+            axios.all(promise1).then(
               axios.spread((...responses) => {
-                axios.all(promises2).then(
-                  axios.spread((...responses2) => {
+                axios.all(promise2).then(
+                  axios.spread((...response2) => {
                     const followersArray = []
                     const followingArray = []
 
                     responses.map(res => followersArray.push(res.data))
-                    responses2.map(res => followingArray.push(res.data))
+                    response2.map(res => followingArray.push(res.data))
+
+                    // console.log(languagesArray)
 
                     resolve({
                       basicInfo: basicInfo.data,

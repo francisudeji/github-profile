@@ -7,7 +7,8 @@ import {
   FaEnvelope,
   FaLink,
   FaBell,
-  FaPlus
+  FaPlus,
+  FaCaretDown
 } from 'react-icons/fa'
 import '../styles/profile.css'
 import Tabs from '../components/tabs'
@@ -29,7 +30,7 @@ function TabContents({ username, pathname, children }) {
   )
 }
 
-function Profile({ match, location }) {
+function Profile({ match, location, history }) {
   let username = match.params.username
   const [
     { basicInfo, allRepos, starredRepos, followers, following },
@@ -38,12 +39,6 @@ function Profile({ match, location }) {
   const [hasAllData, setHasAllData] = useState(false)
   const [err, setErr] = useState(null)
   const [token, setToken] = useState(null)
-
-  useEffect(() => {
-    const token = localStorage.getItem('github-token')
-    setToken(token)
-    loadProfile()
-  }, [])
 
   function loadProfile() {
     setErr(null)
@@ -59,6 +54,11 @@ function Profile({ match, location }) {
         setHasAllData(false)
       })
   }
+  useEffect(() => {
+    const token = localStorage.getItem('github-token')
+    setToken(token)
+    loadProfile()
+  }, [])
 
   function followUser(username) {
     const headers = {
@@ -149,6 +149,91 @@ function Profile({ match, location }) {
           <span className='pr-2'>
             <FaPlus style={{ color: '#fff' }} />{' '}
           </span>
+          <div className='dropdown' style={{ display: 'inline' }}>
+            <button
+              style={{ background: 'transparent', color: '#fff' }}
+              type='button'
+              className='btn dropdown-toggle'
+              role='button'
+              id='dropdownMenuLink'
+              data-toggle='dropdown'
+              aria-haspopup='true'
+              aria-expanded='false'
+            >
+              {hasAllData && (
+                <>
+                  <img
+                    src={basicInfo.avatar_url}
+                    width='20'
+                    alt={basicInfo.login}
+                  />
+                </>
+              )}
+            </button>
+
+            <div className='dropdown-menu' aria-labelledby='dropdownMenuLink'>
+              <a
+                className='dropdown-item'
+                href={`https://github.com/${hasAllData && basicInfo.login}`}
+              >
+                <div>Signed in as</div>
+                <strong>{hasAllData && basicInfo.login}</strong>
+              </a>
+              <div className='dropdown-divider' />
+              <a
+                className='dropdown-item'
+                href={`https://github.com/${hasAllData && basicInfo.login}`}
+              >
+                Your Profile
+              </a>
+              <a
+                className='dropdown-item'
+                href={`https://github.com/${hasAllData &&
+                  basicInfo.login}?tab=repositories`}
+              >
+                Your Repositories
+              </a>
+              <a
+                className='dropdown-item'
+                href={`https://github.com/${hasAllData &&
+                  basicInfo.login}?tab=projects`}
+              >
+                Your Projects
+              </a>
+              <a
+                className='dropdown-item'
+                href={`https://github.com/${hasAllData &&
+                  basicInfo.login}?tab=stars`}
+              >
+                Your Stars
+              </a>
+              <a
+                className='dropdown-item'
+                href={`https://gist.github.com/mine`}
+              >
+                Your Gists
+              </a>
+              <div className='dropdown-divider' />
+              <a className='dropdown-item' href={`https://help.github.com`}>
+                Help
+              </a>
+              <a
+                className='dropdown-item'
+                href={`https://github.com/settings/profile`}
+              >
+                Settings
+              </a>
+              <button
+                className='dropdown-item'
+                onClick={e => {
+                  localStorage.removeItem('github-token')
+                  history.push(`/`)
+                }}
+              >
+                Signout
+              </button>
+            </div>
+          </div>
         </div>
       </nav>
       <div className='container mt-4'>

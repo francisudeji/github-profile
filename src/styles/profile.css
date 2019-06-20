@@ -4,6 +4,16 @@
   font-weight: 500;
 }
 
+.dropdown-menu {
+  left: -100px !important;
+}
+
+.dropdown-item:not(:first-child):hover {
+  background: #007bff !important;
+  color: #fff !important;
+  cursor: pointer;
+}
+
 .small-text {
   padding-right: 0.7rem;
 }
