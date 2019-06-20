@@ -83,7 +83,7 @@ function Home({ history }) {
             {loading ? (
               <>
                 <span
-                  class='spinner-grow spinner-grow-sm'
+                  className='spinner-grow spinner-grow-sm'
                   role='status'
                   aria-hidden='true'
                 />
