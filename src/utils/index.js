@@ -28,9 +28,11 @@ export async function getUserProfile(username) {
 
   const basicInfoPromise = axios.get(`${baseURL}`)
   const allReposPromise = axios.get(
-    `${baseURL}/repos?direction=desc&sort=created&limit=50`
+    `${baseURL}/repos?direction=dsc&sort=created&per_page=100`
   )
-  const starredReposPromise = axios.get(`${baseURL}/starred`)
+  const starredReposPromise = axios.get(
+    `${baseURL}/starred?direction=dsc&sort=created&per_page=100`
+  )
   const followersPromise = axios.get(`${baseURL}/followers`)
   const followingPromise = axios.get(`${baseURL}/following`)
 
@@ -51,36 +53,46 @@ export async function getUserProfile(username) {
       .then(
         axios.spread(
           (basicInfo, allRepos, starredRepos, followers, following) => {
-            const _followers = []
-            const _following = []
+            const promises1 = []
+            const promises2 = []
 
-            followers.data.forEach(follower => {
-              axios
-                .get(`https://api.github.com/users/${follower.login}`)
-                .then(res => {
-                  _followers.push(res.data)
-                  return _followers
+            followers.data.forEach(f =>
+              promises1.push(
+                axios.get(`https://api.github.com/users/${f.login}`, {
+                  headers
                 })
-                .then(res2 => {
-                  following.data.forEach(__following => {
-                    axios
-                      .get(`https://api.github.com/users/${__following.login}`)
-                      .then(res3 => {
-                        _following.push(res3.data)
-                        resolve({
-                          basicInfo: basicInfo.data,
-                          allRepos: allRepos.data,
-                          starredRepos: starredRepos.data,
-                          followers: _followers,
-                          following: _following
-                        })
-                      })
-                      .catch(err => {
-                        reject(err)
-                      })
+              )
+            )
+
+            following.data.forEach(f =>
+              promises2.push(
+                axios.get(`https://api.github.com/users/${f.login}`, {
+                  headers
+                })
+              )
+            )
+
+            axios.all(promises1).then(
+              axios.spread((...responses) => {
+                axios.all(promises2).then(
+                  axios.spread((...responses2) => {
+                    const followersArray = []
+                    const followingArray = []
+
+                    responses.map(res => followersArray.push(res.data))
+                    responses2.map(res => followingArray.push(res.data))
+
+                    resolve({
+                      basicInfo: basicInfo.data,
+                      allRepos: allRepos.data,
+                      starredRepos: starredRepos.data,
+                      followers: followersArray,
+                      following: followingArray
+                    })
                   })
-                })
-            })
+                )
+              })
+            )
           }
         )
       )

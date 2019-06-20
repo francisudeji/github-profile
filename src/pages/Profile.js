@@ -38,11 +38,11 @@ function Profile({ match, location }) {
   ] = useState({})
   const [hasAllData, setHasAllData] = useState(false)
   const [err, setErr] = useState(null)
-  // const [token, setToken] = useState(null)
+  const [token, setToken] = useState(null)
 
   useEffect(() => {
-    // const token = localStorage.getItem('github-token')
-    // setToken(token)
+    const token = localStorage.getItem('github-token')
+    setToken(token)
     loadProfile()
   }, [])
 
@@ -60,15 +60,16 @@ function Profile({ match, location }) {
         setHasAllData(false)
       })
   }
+
   function followUser(username) {
-    // const headers = {
-    //   Authorization: `bearer ${token}`,
-    //   'Content-Length': 0
-    // }
+    const headers = {
+      Authorization: `bearer ${token}`,
+      'Content-Length': '0'
+    }
     axios
-      .put(`https://api.github.com/user/following/${username}`)
+      .put(`https://api.github.com/user/following/${username}`, { headers })
       .then(res => {
-        console.log(res.data)
+        console.log(res)
       })
       .catch(err => {
         console.log(err)
