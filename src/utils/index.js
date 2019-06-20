@@ -20,22 +20,6 @@ export async function authenticateWithGithub() {
       }
     )
   })
-
-  // return new Promise((resolve, reject) => {
-  //   axios
-  //     .get(`https://github.com/login/oauth/authorize`, {
-  //       params: {
-  //         client_id: '4d2801e66c95397a3661',
-  //         redirect_uri: 'http://localhost:3000/callback',
-  //         state: String(new Date().toISOString())
-  //       },
-  //       headers: {
-  //         Accept: 'application/vnd.github.machine-man-preview+json'
-  //       }
-  //     })
-  //     .then(res => resolve(res.data))
-  //     .catch(err => reject(err))
-  // })
 }
 
 export async function getUserProfile(username) {
